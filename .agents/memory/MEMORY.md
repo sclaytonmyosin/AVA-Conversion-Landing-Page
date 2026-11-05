@@ -1,0 +1,1 @@
+- [AVA conversion flow](ava-conversion-flow.md) — Product explanation and real app shots precede offer selection, email capture, and download.

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "AVA — Less mental load. More life."
+description = "Product-first AVA landing page with offer selection, email capture and an App Store download flow."
+version = "1.0.0"
+id = "artifacts/ava"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19891
+
+[services.development]
+run = "pnpm --filter @workspace/ava run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ava", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/ava/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19891"
+BASE_PATH = "/"

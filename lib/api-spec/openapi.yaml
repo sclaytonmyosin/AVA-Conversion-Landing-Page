@@ -11,6 +11,27 @@ tags:
   - name: health
     description: Health operations
 paths:
+  /leads:
+    post:
+      operationId: createLead
+      summary: Save an email before continuing to the download
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Email saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadResult"
+        "400":
+          description: Invalid email
+        "429":
+          description: Too many requests
   /healthz:
     get:
       operationId: healthCheck
@@ -26,6 +47,34 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    LeadInput:
+      type: object
+      required: [email, consent]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        consent:
+          type: boolean
+          enum: [true]
+        source:
+          type: string
+          maxLength: 200
+        medium:
+          type: string
+          maxLength: 200
+        campaign:
+          type: string
+          maxLength: 200
+    LeadResult:
+      type: object
+      required: [success, downloadUrl]
+      properties:
+        success:
+          type: boolean
+        downloadUrl:
+          type: string
     HealthStatus:
       type: object
       properties:
