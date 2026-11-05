@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "campaign-links": "tsx ./src/campaign-links.ts",
+    "test:campaigns": "tsx --test ./src/campaigns.test.ts",
     "hello": "tsx ./src/hello.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "@workspace/ava-campaigns": "workspace:*",
     "@types/node": "catalog:",
     "tsx": "catalog:"
   }

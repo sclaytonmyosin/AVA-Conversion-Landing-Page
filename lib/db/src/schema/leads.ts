@@ -10,6 +10,8 @@ export const leadsTable = pgTable("ava_leads", {
   source: text("source"),
   medium: text("medium"),
   campaign: text("campaign"),
+  campaignKey: text("campaign_key"),
+  influencerName: text("influencer_name"),
   offer: text("offer").notNull().default("14-day-trial"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

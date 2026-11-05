@@ -16,6 +16,9 @@
   },
   "references": [
     {
+      "path": "../../lib/ava-campaigns"
+    },
+    {
       "path": "../../lib/api-client-react"
     }
   ]

@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Calendar, Camera, Check, ChevronDown, Mail, Menu, Mic, ShieldCheck, Users, X } from 'lucide-react';
 import { SiGmail, SiGooglecalendar, SiApple } from 'react-icons/si';
 import { SignupDialog, BASE } from '@/components/signup-dialog';
+import { useCampaign } from '@/lib/campaign';
 
 const img = (f: string) => `${BASE}brand/${f}`;
 
@@ -29,6 +30,7 @@ function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; 
 }
 
 function CTA({ onClick, id, light = false, className = '' }: { onClick: () => void; id: string; light?: boolean; className?: string }) {
+  const { offer } = useCampaign();
   return (
     <button
       onClick={onClick}
@@ -37,7 +39,7 @@ function CTA({ onClick, id, light = false, className = '' }: { onClick: () => vo
         light ? 'bg-[#FEFDFB] text-[#3B2FA0] hover:bg-[#FCE3D4]' : 'bg-[#3B2FA0] text-[#FEFDFB] shadow-[0_14px_30px_-12px_#3B2FA0] hover:bg-[#5750C1]'
       } ${className}`}
     >
-      Get my 14 days free <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
+      {offer.cta} <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
     </button>
   );
 }
@@ -59,11 +61,21 @@ const FAQS = [
 ];
 
 export default function Landing() {
+  const { campaign, offer } = useCampaign();
+  const faqs = FAQS.map((entry) => entry.q === 'How much does it cost?'
+    ? { ...entry, a: `${offer.terms} Manage your subscription in your iPhone’s subscription settings.` }
+    : entry);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [faq, setFaq] = useState<number | null>(0);
   const [scrolled, setScrolled] = useState(false);
   const start = () => { setMenu(false); setOpen(true); };
+
+  useEffect(() => {
+    document.title = campaign
+      ? `AVA for ${campaign.influencer}’s community — ${offer.freePeriod} free`
+      : 'AVA — Less mental load. More life.';
+  }, [campaign, offer]);
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 12);
@@ -98,7 +110,7 @@ export default function Landing() {
             {NAV.map((n) => (
               <button key={n.id} onClick={() => go(n.id)} className="text-sm font-medium text-[#1E1A45]/70 transition hover:text-[#3B2FA0]" data-testid={`link-nav-${n.id}`}>{n.label}</button>
             ))}
-            <button onClick={start} className="rounded-full bg-[#3B2FA0] px-5 py-2.5 text-sm font-semibold text-[#FEFDFB] transition hover:bg-[#5750C1]" data-testid="button-nav-cta">Get 14 days free</button>
+            <button onClick={start} className="rounded-full bg-[#3B2FA0] px-5 py-2.5 text-sm font-semibold text-[#FEFDFB] transition hover:bg-[#5750C1]" data-testid="button-nav-cta">{offer.shortCta}</button>
           </div>
           <button className="rounded-full p-2 md:hidden" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls="mobile-menu" aria-label={menu ? 'Close menu' : 'Open menu'} data-testid="button-mobile-menu">
             {menu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -122,7 +134,7 @@ export default function Landing() {
           <div className="relative mx-auto grid max-w-6xl items-center gap-14 md:grid-cols-[1.1fr_0.9fr]">
             <div>
               <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 rounded-full bg-[#E3F3F1] px-4 py-1.5 text-sm font-semibold text-[#1F6B65]">
-                <span className="h-2 w-2 rounded-full bg-[#2E8A82]" /> For the parent who remembers everything
+                <span className="h-2 w-2 rounded-full bg-[#2E8A82]" /> {campaign?.welcome ?? 'For the parent who remembers everything'}
               </motion.p>
               <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }} className="font-display mt-6 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading-[0.98] text-[#3B2FA0]">
                 You carry it all.<br /><em className="font-normal italic text-[#5750C1]">Let AVA</em> carry some.
@@ -134,7 +146,7 @@ export default function Landing() {
                 <CTA onClick={start} id="hero" />
                 <button onClick={() => go('how')} className="inline-flex items-center gap-2 px-2 py-3 font-semibold text-[#3B2FA0] underline-offset-4 hover:underline" data-testid="button-see-how">See how it works <ChevronDown className="h-4 w-4" /></button>
               </motion.div>
-              <p className="mt-5 flex items-center gap-2 text-sm text-[#1E1A45]/60"><SiApple className="h-4 w-4" /> iPhone only · then $12.99/month · cancel through Apple</p>
+              <p className="mt-5 flex items-center gap-2 text-sm text-[#1E1A45]/60"><SiApple className="h-4 w-4" /> iPhone only · then {offer.priceAfter} · cancel through Apple</p>
             </div>
             <motion.div initial={{ opacity: 0, y: 40, rotate: 3 }} animate={{ opacity: 1, y: 0, rotate: 2 }} transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="relative mx-auto w-full max-w-[340px]">
               <img src={img('ava-phone.png')} alt="AVA's 'Your Day in Focus' screen showing a camp deposit, a permission slip due at 3 PM, a dentist reminder and a weather note" className="relative z-10 w-full drop-shadow-[0_40px_50px_rgba(59,47,160,0.28)]" data-testid="img-hero-phone" />
@@ -297,13 +309,13 @@ export default function Landing() {
             <div aria-hidden className="absolute -bottom-32 right-32 h-64 w-64 rounded-full bg-[#F4A27A]/30" />
             <div className="relative grid gap-10 md:grid-cols-[1.2fr_1fr] md:items-center">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9BE0D7]">Simple pricing</p>
-                <h2 className="font-display mt-4 text-4xl font-semibold leading-tight md:text-5xl">Try two full weeks of a lighter head.</h2>
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9BE0D7]">{campaign ? `For ${campaign.influencer}’s community` : 'Simple pricing'}</p>
+                <h2 className="font-display mt-4 text-4xl font-semibold leading-tight md:text-5xl">Try {offer.freePeriod} of a lighter head.</h2>
                 <p className="mt-5 text-lg text-[#FEFDFB]/75">See how it feels when someone else is watching the inbox.</p>
               </div>
               <div className="rounded-[28px] bg-[#FEFDFB] p-7 text-[#1E1A45]">
-                <p className="font-display text-5xl font-semibold text-[#3B2FA0]">14 days free</p>
-                <p className="mt-2 text-[#1E1A45]/70">then <span className="font-semibold text-[#1E1A45]">$12.99/month</span></p>
+                <p className="font-display text-5xl font-semibold text-[#3B2FA0]">{offer.freePeriod} free</p>
+                <p className="mt-2 text-[#1E1A45]/70">then <span className="font-semibold text-[#1E1A45]">{offer.priceAfter}</span></p>
                 <ul className="mt-5 space-y-2 text-sm">
                   {['Cancel anytime through Apple', 'Gmail, Google Calendar, screenshots, voice notes', 'Share plans with your partner', 'iPhone only — not available on Android yet'].map((t) => (
                     <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#2E8A82]" />{t}</li>
@@ -323,7 +335,7 @@ export default function Landing() {
               <p className="mt-4 text-[#1E1A45]/65">The things parents ask before handing anything over.</p>
             </Reveal>
             <div className="divide-y divide-[#3B2FA0]/10 border-y border-[#3B2FA0]/10">
-              {FAQS.map((f, i) => {
+              {faqs.map((f, i) => {
                 const isOpen = faq === i;
                 return (
                   <div key={f.q}>
@@ -354,7 +366,7 @@ export default function Landing() {
             <h2 className="font-display text-4xl font-semibold leading-tight text-[#3B2FA0] md:text-6xl">You don’t have to remember everything anymore.</h2>
             <p className="mx-auto mt-5 max-w-lg text-lg text-[#1E1A45]/70">AVA keeps track. You stay in charge.</p>
             <CTA onClick={start} id="final" className="mt-9" />
-            <p className="mt-4 text-sm text-[#1E1A45]/60">iPhone only · 14 days free, then $12.99/month</p>
+            <p className="mt-4 text-sm text-[#1E1A45]/60">iPhone only · {offer.freePeriod} free, then {offer.priceAfter}</p>
           </Reveal>
         </section>
       </main>

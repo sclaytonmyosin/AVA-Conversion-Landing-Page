@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, leadsTable } from "@workspace/db";
 import { CreateLeadBody, CreateLeadResponse } from "@workspace/api-zod";
+import { resolveCampaign } from "@workspace/ava-campaigns";
 
 const router: IRouter = Router();
 const attempts = new Map<string, { count: number; expires: number }>();
@@ -34,18 +35,22 @@ router.post("/leads", async (req, res): Promise<void> => {
     return;
   }
   const { email, consent, source, medium, campaign } = parsed.data;
+  const selected = resolveCampaign(source, campaign);
   try {
     await db.insert(leadsTable).values({
       email: email.trim().toLowerCase(),
       consent,
-      consentText: "I agree to receive AVA product updates, offers, and news. I can unsubscribe at any time.",
+      consentText: "I agree to receive emails from AVA about the product, updates and news. I can unsubscribe anytime.",
       source,
       medium,
       campaign,
+      campaignKey: selected.campaign?.id,
+      influencerName: selected.campaign?.influencer,
+      offer: selected.offer.id,
     }).onConflictDoNothing({ target: leadsTable.email });
     res.status(201).json(CreateLeadResponse.parse({
       success: true,
-      downloadUrl: "https://apps.apple.com/app/id6746447344",
+      downloadUrl: selected.offer.downloadUrl,
     }));
   } catch {
     req.log.error("Lead could not be saved");

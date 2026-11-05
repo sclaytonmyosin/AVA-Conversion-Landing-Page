@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useCreateLead } from '@workspace/api-client-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { ArrowRight, Check, Loader2, Smartphone, AlertCircle } from 'lucide-react';
+import { useCampaign } from '@/lib/campaign';
 
 const BASE = import.meta.env.BASE_URL;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -17,6 +18,7 @@ function getUtm() {
 }
 
 export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const { campaign, offer } = useCampaign();
   const createLead = useCreateLead();
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
@@ -79,9 +81,10 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         </div>
         {!downloadUrl ? (
           <form onSubmit={submit} noValidate className="px-7 pb-7 pt-3">
-            <DialogTitle className="font-display text-3xl font-semibold leading-tight text-[#3B2FA0]">Start your 14 free days</DialogTitle>
+            {campaign && <p className="mb-2 text-sm font-semibold text-[#1F6B65]">{campaign.welcome}</p>}
+            <DialogTitle className="font-display text-3xl font-semibold leading-tight text-[#3B2FA0]">{offer.signupTitle}</DialogTitle>
             <DialogDescription className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-              Tell us where to reach you, then we’ll take you straight to the App Store. AVA is free for 14 days, then $12.99/month. Cancel anytime through Apple.
+              Tell us where to reach you, then we’ll take you straight to the App Store. {offer.terms}
             </DialogDescription>
             <label htmlFor="email" className="mt-6 block text-sm font-semibold">Email</label>
             <input
@@ -134,8 +137,9 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           <div className="px-7 pb-7 pt-3" data-testid="step-download">
             <DialogTitle className="font-display text-3xl font-semibold leading-tight text-[#3B2FA0]">You’re in. One last step.</DialogTitle>
             <DialogDescription className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-              Download AVA from the App Store and start your free trial inside the app. Your 14 days begin when you subscribe through Apple.
+              {offer.downloadInstructions}
             </DialogDescription>
+            {campaign && <p className="mt-3 text-sm font-semibold text-[#1F6B65]">For {campaign.influencer}’s community · {offer.freePeriod} free</p>}
             {isAndroid && (
               <div role="note" className="mt-5 rounded-2xl bg-secondary px-4 py-3 text-sm text-secondary-foreground">
                 AVA is iPhone only right now, so it won’t install on this Android device. Open this link on an iPhone instead.
