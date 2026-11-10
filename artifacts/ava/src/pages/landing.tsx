@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Calendar, Camera, Check, ChevronDown, Mail, Menu, Mic, ShieldCheck, Users, X } from 'lucide-react';
 import { SiGmail, SiGooglecalendar, SiApple } from 'react-icons/si';
+import { Link } from 'wouter';
 import { SignupDialog, BASE } from '@/components/signup-dialog';
 import { useCampaign } from '@/lib/campaign';
 
@@ -375,6 +376,7 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[#1E1A45]/60 md:flex-row">
           <img src={img('ava-logo.svg')} alt="AVA" className="h-5" />
           <p>Your behind-the-scenes parenting partner.</p>
+          <Link href="/gift" className="font-semibold text-[#3B2FA0] hover:text-[#5750C1]" data-testid="link-footer-gift">Gift AVA</Link>
           <a href="https://hiava.app/privacy_policy.html" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B2FA0]" data-testid="link-footer-privacy">Privacy Policy</a>
         </div>
       </footer>
